@@ -5,6 +5,16 @@ module BinaryTree
 	, isBinary  
 	, treeSearch
 	, isBalanced
+	, traverseLVR'
+	, traverseVLR 
+	, traverseLVR
+	, traverseLRV
+	, treeToString
+	, leaves
+	, nnodes
+	, nsum
+	, tmap
+	, treeRemove
     ) where
 
 data Tree a = EmptyTree | Node a (Tree a) (Tree a) deriving (Show, Read, Eq)  
@@ -45,11 +55,11 @@ isBinary (Node a t1@(Node b b1 b2) t2@(Node c c1 c2))
 
 treeSearch :: (Ord a) => a -> Tree a -> Bool
 treeSearch x EmptyTree = False
-treeSearch x (Node a _ _)
-	| x == a = True 
 treeSearch x (Node a t1 t2)
+	| x == a = True
 	| treeSearch x t1 || treeSearch x t2 = True
 	| otherwise = False
+
 
 
 isBalanced :: (Ord a) => Tree a -> Bool --wysokość lewego i prawego poddrzewa każdego węzła różni się co najwyżej o jeden
@@ -65,7 +75,80 @@ countLeft (Node _ t1 _) = 1 + (countLeft t1)
 
 countRight :: Tree a -> Int
 countRight EmptyTree = 0
-countRight (Node _ _ t2) = 1 + (countRight t2)
+countRight (Node _ _ t2) = 1 + (countRight t2)  -- ??mogą iść na zmianę
 
 
 
+traverseLVR :: Tree a -> [a] 
+traverseLVR EmptyTree = []
+traverseLVR (Node a t1 t2) = (traverseLVR t1) ++ [a] ++ (traverseLVR t2)
+
+traverseVLR :: Tree a -> [a] 
+traverseVLR EmptyTree = []
+traverseVLR (Node a t1 t2) = [a] ++ (traverseLVR t1) ++ (traverseLVR t2)
+
+traverseLRV :: Tree a -> [a] 
+traverseLRV EmptyTree = []
+traverseLRV (Node a t1 t2) = (traverseLVR t1) ++ (traverseLVR t2) ++ [a]
+
+traverseVRL :: Tree a -> [a] 
+traverseVRL EmptyTree = []
+traverseVRL (Node a t1 t2) = [a] ++ (traverseLVR t2) ++ (traverseLVR t1)
+
+traverseRVL :: Tree a -> [a] 
+traverseRVL EmptyTree = []
+traverseRVL (Node a t1 t2) = (traverseLVR t2) ++ [a] ++ (traverseLVR t1)
+
+traverseRLV :: Tree a -> [a] 
+traverseRLV EmptyTree = []
+traverseRLV (Node a t1 t2) = (traverseLVR t2) ++ (traverseLVR t1) ++ [a]
+
+
+traverseLVR' :: Tree a -> [Tree a] 
+traverseLVR' EmptyTree = []
+traverseLVR' n@(Node a t1 t2) = (traverseLVR' t1) ++ [n] ++ (traverseLVR' t2)
+
+
+
+treeToString :: (Show a) => Tree a -> String
+treeToString EmptyTree = ""
+treeToString (Node a EmptyTree EmptyTree) = show a
+treeToString (Node a t1 t2) = (show a) ++ "(" ++ (treeToString t1)  ++ "," ++ (treeToString t2) ++ ")"
+
+
+
+leaves :: (Eq t) => Tree t -> [Tree t]
+leaves t = [ l | l <- (traverseLVR' t), isLeaf l ]
+isLeaf (Node a t1 t2)
+	| t1 == EmptyTree && t2 == EmptyTree = True
+	| otherwise = False
+
+
+
+nnodes :: Tree a -> Int		--liczba węzłów
+nnodes EmptyTree = 0
+nnodes (Node _ t1 t2) = 1 + (nnodes t1) + (nnodes t2)
+
+
+
+nsum :: (Num t) => Tree t -> t	--suma w węzłach
+nsum EmptyTree = 0
+nsum t = foldr (+) 0 (traverseLVR t) 
+
+
+
+--map :: (a -> b) -> [a] -> [b]
+tmap :: (a -> b) -> Tree a -> Tree b
+tmap f EmptyTree = EmptyTree
+tmap f (Node a t1 t2) = Node (f a) (tmap f t1) (tmap f t2)
+
+
+treeRemove :: (Eq a, Ord a) => a -> Tree a -> Tree a
+treeRemove _ EmptyTree = EmptyTree
+treeRemove x t@(Node a t1@(Node a1 l1 p1) t2@(Node a2 l2 p2))
+	| treeSearch x t == False = t		--jeśli nie ma takiego el
+	| x == a && isLeaf t = EmptyTree	--liść
+--	| x == a = Node l t1 t2		--nie korzeń
+	| otherwise = Node a (treeRemove x t1) (treeRemove x t2)
+
+--parent?
