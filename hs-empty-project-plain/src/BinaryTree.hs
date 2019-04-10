@@ -145,10 +145,21 @@ tmap f (Node a t1 t2) = Node (f a) (tmap f t1) (tmap f t2)
 
 treeRemove :: (Eq a, Ord a) => a -> Tree a -> Tree a
 treeRemove _ EmptyTree = EmptyTree
-treeRemove x t@(Node a t1@(Node a1 l1 p1) t2@(Node a2 l2 p2))
+treeRemove x t@(Node a t1 t2)
 	| treeSearch x t == False = t		--jeśli nie ma takiego el
 	| x == a && isLeaf t = EmptyTree	--liść
---	| x == a = Node l t1 t2		--nie korzeń
+	| x == a && t1 == EmptyTree = t2	--jeśli ma tylko prawe dziecko	
+	| x == a && t2 == EmptyTree = t1 	--jeśli ma tylko prawe dziecko	
+	| x == a = Node (findMin t2) t1 (treeRemove (findMin t2) t2) --minimum prawgo dzicka wchodzi na miejsce usuwanego elementu
 	| otherwise = Node a (treeRemove x t1) (treeRemove x t2)
 
---parent?
+--funkcje pomocnicze
+findMin :: Tree a -> a
+findMin (Node a EmptyTree EmptyTree) = a
+findMin (Node a t1 _) = findMin t1
+
+findMax :: Tree a -> a
+findMax (Node a EmptyTree EmptyTree) = a
+findMax (Node a _ t2) = findMax t2
+
+
