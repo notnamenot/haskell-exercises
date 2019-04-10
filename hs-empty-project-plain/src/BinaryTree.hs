@@ -163,3 +163,17 @@ findMax (Node a EmptyTree EmptyTree) = a
 findMax (Node a _ t2) = findMax t2
 
 
+
+--merge :: (Ord a, Num a) => Tree a -> Tree a -> Tree a
+merge EmptyTree t2 = t2
+merge t1 EmptyTree = t1
+merge t1 t2 = merge (treeInsert (head (traverseLVR t2)) t1) (treeRemove (head (traverseLVR t2)) t2)
+
+
+
+
+
+
+
+
+
