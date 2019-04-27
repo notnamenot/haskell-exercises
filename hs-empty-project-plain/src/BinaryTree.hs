@@ -57,6 +57,8 @@ treeSearch :: (Ord a) => a -> Tree a -> Bool
 treeSearch x EmptyTree = False
 treeSearch x (Node a t1 t2)
 	| x == a = True
+	-- | x < a  = treeSearch x t1  
+ 	-- | x > a  = treeSearch x t2 	
 	| treeSearch x t1 || treeSearch x t2 = True
 	| otherwise = False
 
@@ -65,17 +67,28 @@ treeSearch x (Node a t1 t2)
 isBalanced :: (Ord a) => Tree a -> Bool --wysokość lewego i prawego poddrzewa każdego węzła różni się co najwyżej o jeden
 isBalanced EmptyTree = True
 isBalanced t@(Node _ t1 t2) 
-	| (countLeft t == countRight t || countLeft t == (countRight t - 1) || countLeft t == (countRight t + 1)) && (isBalanced t1 && isBalanced t2) = True 
+	| cntl == cntr || cntl == (cntr-1) || cntl == (cntr+1) = True
+	-- | (countLeft t == countRight t || countLeft t == (countRight t - 1) || countLeft t == (countRight t + 1)) && (isBalanced t1 && isBalanced t2) = True 
 	| otherwise = False
+	where 
+		cntl = count t1
+		cntr = count t2
 
 --funkcje pomocnicze
-countLeft :: Tree a -> Int
+{-- countLeft :: Tree a -> Int
 countLeft EmptyTree = 0
 countLeft (Node _ t1 _) = 1 + (countLeft t1)
 
 countRight :: Tree a -> Int
 countRight EmptyTree = 0
 countRight (Node _ _ t2) = 1 + (countRight t2)  -- ??mogą iść na zmianę
+--}
+
+count :: Tree a -> Int
+count EmptyTree = 0
+count (Node _ t1 t2)
+	| count t1 > count t2 = 1 + (count t1)
+	| otherwise = 1 + (count t2)
 
 
 
@@ -167,8 +180,12 @@ findMax (Node a _ t2) = findMax t2
 --merge :: (Ord a, Num a) => Tree a -> Tree a -> Tree a
 merge EmptyTree t2 = t2
 merge t1 EmptyTree = t1
-merge t1 t2 = merge (treeInsert (head (traverseLVR t2)) t1) (treeRemove (head (traverseLVR t2)) t2)
+--merge t1 t2 = merge (treeInsert (head (traverseLVR t2)) t1) (treeRemove (head (traverseLVR t2)) t2)
+merge t1 t2 = foldr treeInsert t1 (traverseLVR t2)
 
+nums = [8,6,4,1,7,3,5] 
+nums2 = [0,1,4,8,3,4,5,2] 
+numsTree = foldr treeInsert EmptyTree nums  
 
 
 
