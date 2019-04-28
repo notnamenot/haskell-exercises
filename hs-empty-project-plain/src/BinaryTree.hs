@@ -17,7 +17,37 @@ module BinaryTree
 	, treeRemove
     ) where
 
-data Tree a = EmptyTree | Node a (Tree a) (Tree a) deriving (Show, Read, Eq)  
+data Tree a = EmptyTree | Node a (Tree a) (Tree a) deriving (Read)  --Show,Eq
+
+testTree :: Tree Int
+testTree = Node 7 (Node 3 (Node 1 EmptyTree EmptyTree) (Node 4 EmptyTree EmptyTree))  (Node 19 (Node 16 EmptyTree EmptyTree) (Node 41 EmptyTree EmptyTree))
+
+instance (Show a) => Show (Tree a) where
+	show EmptyTree = ""
+	show (Node a EmptyTree EmptyTree) = show a
+	show (Node a t1 t2) = (show a) ++ "(" ++ (show t1)  ++ "," ++ (show t2) ++ ")"
+
+instance (Eq v) => Eq (Tree v) where
+	EmptyTree == EmptyTree = True
+	EmptyTree == _ = False
+	_ == EmptyTree = False 
+	Node v1 l1 r1 == Node v2 l2 r2 = v1==v2 && l1==l2 && r1==r2
+
+instance Functor Tree where
+	fmap f EmptyTree = EmptyTree
+	fmap f (Node v t1 t2) = Node (f v) (fmap f t1) (fmap f t2)
+--fmap (*10) testTree
+
+--instance Applicative Tree where
+--	pure a = Node a EmptyTree EmptyTree
+--	EmptyTree <*> _ = EmptyTree
+	--(Node v t1 t2) <*> sth = fmap f sth
+
+{-
+    class (Functor f) => Applicative f where  
+        pure :: a -> f a  
+        (<*>) :: f (a -> b) -> f a -> f b  
+-}
 
 singleton :: a -> Tree a
 singleton x = Node x EmptyTree EmptyTree
